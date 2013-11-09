@@ -1,4 +1,4 @@
 Nome
 ====
 
-Monome controller node.js app example
+Monome controller node.js app examples
