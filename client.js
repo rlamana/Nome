@@ -34,7 +34,12 @@ Monome.prototype = extend(Emitter.prototype, {
 		}).bind(this));
 
 		websocket.on('message', (function(data, flags) {
-			this.emit('message', data, flags);
+	        data = JSON.parse(data);
+
+	        // @todo Check if event is in a list of valid events
+	        if(data.event) {
+	        	this.emit.apply(this, [data.event].concat(data.args));
+	        }
 		}).bind(this));
 
 		return this;
@@ -56,11 +61,24 @@ Monome.prototype = extend(Emitter.prototype, {
 });
 
 
-/////////
+///////// example
 
 var monome = new Monome();
 monome.connect().on('connected', function() {
-	monome.led(2,3,1);
+});
+
+var grid = {};
+
+monome.on('key', function(x,y,s) {
+	console.log("Key pressed: ", x, y, s);
+
+	if(s) {
+		if(!grid[x+''+y])
+			grid[x+''+y] = 0;
+
+		grid[x+''+y] = !grid[x+''+y];
+		monome.led(x, y, grid[x+''+y]);
+	}
 });
 
 

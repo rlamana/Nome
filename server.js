@@ -11,6 +11,9 @@ monode.on('device', function(device) {
 
 	console.log('Listening to port ' + port);
 
+
+ 	// Server event handlers
+
 	server.on('connection', function(websocket) {
 		console.log(' + New client on port ' + port);
 	    
@@ -21,5 +24,14 @@ monode.on('device', function(device) {
 	        	device[data.method].apply(device, data.args);
 	        }
 	    });
+	
+		// Device event handlers
+		device.on('key', function(x, y, s) {
+			websocket.send(JSON.stringify({
+				device: device.id,
+				event: 'key',
+				args: [x,y,s]
+			}));
+		});
 	});
 });
