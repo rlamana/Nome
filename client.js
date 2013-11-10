@@ -70,9 +70,8 @@ monome.connect().on('connected', function() {
 var grid = {};
 
 monome.on('key', function(x,y,s) {
-	console.log("Key pressed: ", x, y, s);
-
 	if(s) {
+		console.log('KEY: ', x, y);
 		if(!grid[x+''+y])
 			grid[x+''+y] = 0;
 
