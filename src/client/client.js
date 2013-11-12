@@ -19,7 +19,7 @@ Monome.prototype = extend(Emitter.prototype, {
 			this._connected = value;
 		}
 	},
-
+	
 	connect: function(host, port) {
 		var websocket;
 		port = port || '5555';

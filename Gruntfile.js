@@ -18,9 +18,13 @@ module.exports = function(grunt) {
 				banner: '<%= banner %>',
 				stripBanners: true
 			},
-			dist: {
-				src: ['src/**/*.js'],
-				dest: 'build/<%= pkg.name %>.js'
+			server: {
+				src: ['src/server/**/*.js'],
+				dest: 'build/<%= pkg.name %>-server.js'
+			},
+			client: {
+				src: ['src/client/**/*.js'],
+				dest: 'build/<%= pkg.name %>-client.js'
 			}
 		},
 
@@ -28,9 +32,9 @@ module.exports = function(grunt) {
 			options: {
 				banner: '<%= banner %>'
 			},
-			dist: {
-				src: '<%= concat.dist.dest %>',
-				dest: 'build/<%= pkg.name %>.min.js'
+			client: {
+				src: '<%= concat.client.dest %>',
+				dest: 'build/<%= pkg.name %>-client.min.js'
 			}
 		},
 
@@ -48,11 +52,11 @@ module.exports = function(grunt) {
 				boss: true,
 				eqnull: true,
 				globals: {
-					'require': true,
-					'define': true,
-					'module': true,
-					'exports': true,
-					'console': true
+					'require': false,
+					'define': false,
+					'module': false,
+					'exports': false,
+					'console': false
 				}
 			},
 
@@ -74,10 +78,16 @@ module.exports = function(grunt) {
 				files: '<%= jshint.gruntfile.src %>',
 				tasks: ['jshint:gruntfile']
 			},
+
+			lib_test: {
+				files: '<%= jshint.lib_test.src %>',
+				tasks: ['default']
+			}/*,
+
 			lib_test: {
 				files: '<%= jshint.lib_test.src %>',
 				tasks: ['jshint:lib_test', 'nodeunit']
-			}
+			}*/
 		}
 	});
 
