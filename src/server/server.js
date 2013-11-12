@@ -1,5 +1,3 @@
-#!/usr/local/bin/node --debug
-
 var port = 5555;
 var monode = require('monode')();
 

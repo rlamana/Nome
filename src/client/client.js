@@ -1,5 +1,3 @@
-#!/usr/local/bin/node
-
 var Emitter = require('./emitter');
 var extend = require('./extend');
 
@@ -28,6 +26,11 @@ Monome.prototype = extend(Emitter.prototype, {
 		host = host || '127.0.0.1';
 
 		websocket = this._websocket = new WebSocket('ws://' + host + ':' + port);
+
+		websocket.on('error', function(){
+			console.error('Could not connected to Monode server @ ' + host + ':' + port);
+		});
+
 		websocket.on('open', function() {
 			this._connected = true;
 			console.log('Connected to Monode server @ ' + host + ':' + port);
@@ -66,6 +69,7 @@ Monome.prototype = extend(Emitter.prototype, {
 
 var monome = new Monome();
 monome.connect().on('connected', function() {
+
 });
 
 var grid = {};

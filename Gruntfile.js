@@ -5,6 +5,7 @@ module.exports = function(grunt) {
 	grunt.initConfig({
 		// Metadata.
 		pkg: grunt.file.readJSON('package.json'),
+
 		banner: '/*! <%= pkg.title || pkg.name %> - v<%= pkg.version %> - ' +
 			'<%= grunt.template.today("yyyy-mm-dd") %>\n' +
 			'<%= pkg.homepage ? "* " + pkg.homepage + "\\n" : "" %>' +
@@ -18,7 +19,7 @@ module.exports = function(grunt) {
 				stripBanners: true
 			},
 			dist: {
-				src: ['src/<%= pkg.name %>.js'],
+				src: ['src/**/*.js'],
 				dest: 'build/<%= pkg.name %>.js'
 			}
 		},
