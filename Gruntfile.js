@@ -12,19 +12,39 @@ module.exports = function(grunt) {
 			'* Copyright (c) <%= grunt.template.today("yyyy") %> <%= pkg.author.name %>;' +
 			' Licensed <%= _.pluck(pkg.licenses, "type").join(", ") %> */\n',
 
-		// Task configuration.
+		// Task configuration
+
+		// Transpiler of nome client code 
+		transpile: {
+			amd: {
+				type: "amd",
+				files: [{
+					expand: true,
+					cwd: 'src/client/',
+					src: ['**/*.js'],
+					dest: 'tmp/',
+					ext: '.amd.js'
+				}]
+			}
+		},
+
 		concat: {
 			options: {
-				banner: '<%= banner %>',
 				stripBanners: true
 			},
 			server: {
+				options: {
+					banner: '#!/usr/bin/env node\n'
+				},
 				src: ['src/server/**/*.js'],
-				dest: 'build/<%= pkg.name %>-server.js'
+				dest: 'build/bin/<%= pkg.name %>.js'
 			},
 			client: {
-				src: ['src/client/**/*.js'],
-				dest: 'build/<%= pkg.name %>-client.js'
+				options: {
+					banner: '<%= banner %>'
+				},
+				src: ['tmp/**/*.js'],
+				dest: 'build/dist/<%= pkg.name %>.js'
 			}
 		},
 
@@ -34,12 +54,13 @@ module.exports = function(grunt) {
 			},
 			client: {
 				src: '<%= concat.client.dest %>',
-				dest: 'build/<%= pkg.name %>-client.min.js'
+				dest: 'build/dist/<%= pkg.name %>.min.js'
 			}
 		},
 
 		jshint: {
 			options: {
+				esnext: true,
 				curly: true,
 				eqeqeq: true,
 				immed: true,
@@ -97,8 +118,9 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-contrib-nodeunit');
 	grunt.loadNpmTasks('grunt-contrib-jshint');
 	grunt.loadNpmTasks('grunt-contrib-watch');
+	grunt.loadNpmTasks('grunt-es6-module-transpiler');
 
 	// Default task.
-	grunt.registerTask('default', ['jshint', /*'nodeunit',*/ 'concat', 'uglify']);
+	grunt.registerTask('default', ['jshint', /*'nodeunit',*/ 'transpile', 'concat', 'uglify']);
 
 };
