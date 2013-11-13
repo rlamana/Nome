@@ -1,3 +1,9 @@
+/*
+ * Nome
+ *
+ * Copyright (c) 2013 Ramon Lamana
+ * Licensed under the MIT license.
+ */
 
 function extend() {
 	var obj = {};

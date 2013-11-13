@@ -1,3 +1,10 @@
+/*
+ * Nome
+ *
+ * Copyright (c) 2013 Ramon Lamana
+ * Licensed under the MIT license.
+ */
+
 import Emitter from 'emitter';
 import extend from 'extend';
 

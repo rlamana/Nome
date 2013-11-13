@@ -1,3 +1,10 @@
+/**
+ * Nome
+ *
+ * Copyright (c) 2013 Ramon Lamana
+ * Licensed under the MIT license.
+ */
+ 
 var port = 5555;
 var monode = require('monode')();
 

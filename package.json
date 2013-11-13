@@ -3,6 +3,8 @@
   "version": "0.0.1",
   "description": "Monome controller server for monode & node.js",
   "main": "Gruntfile.js",
+  "bin": "build/bin/nome.js",
+  "namespace": "Nome",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -23,6 +25,7 @@
     "grunt-contrib-nodeunit": "~0.2.0",
     "grunt-contrib-uglify": "~0.2.2",
     "grunt-contrib-watch": "~0.5.3",
+    "grunt-contrib-clean": "~0.4.0",
     "grunt-es6-module-transpiler": "~0.5.1",
     "monode": "~2.2.3",
     "ws": "~0.4.31"

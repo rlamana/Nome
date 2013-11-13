@@ -1,73 +1,81 @@
+(function(root) {
 /*! nome - v0.0.1 - 2013-11-13
-* Copyright (c) 2013 Ramon Lamana; Licensed MIT */
+ * Copyright (c) 2013 Ramon Lamana; Licensed MIT */
 define("client", 
   ["emitter","extend"],
   function(__dependency1__, __dependency2__) {
     "use strict";
+    /*
+     * Nome
+     *
+     * Copyright (c) 2013 Ramon Lamana
+     * Licensed under the MIT license.
+     */
+
     var Emitter = __dependency1__["default"];
     var extend = __dependency2__["default"];
 
     var WebSocket = require('ws');
 
     var Monome = function() {
-            Emitter.apply(this);
+    	Emitter.apply(this);
 
-            this.connected = false;
+    	this.connected = false;
     };
 
     Monome.prototype = extend(Emitter.prototype, {
-            get connected() {
-                    return this._connected;
-            },
+    	get connected() {
+    		return this._connected;
+    	},
 
-            set connected(value) {
-                    if(typeof this._connected === 'undefined') {
-                            this._connected = value;
-                    }
-            },
-            
-            connect: function(host, port) {
-                    var websocket;
-                    port = port || '5555';
-                    host = host || '127.0.0.1';
+    	set connected(value) {
+    		if(typeof this._connected === 'undefined') {
+    			this._connected = value;
+    		}
+    	},
+    	
+    	connect: function(host, port) {
+    		var websocket;
+    		port = port || '5555';
+    		host = host || '127.0.0.1';
 
-                    websocket = this._websocket = new WebSocket('ws://' + host + ':' + port);
+    		websocket = this._websocket = new WebSocket('ws://' + host + ':' + port);
 
-                    websocket.on('error', function(){
-                            console.error('Could not connected to Monode server @ ' + host + ':' + port);
-                    });
+    		websocket.on('error', function(){
+    			console.error('Could not connected to Monode server @ ' + host + ':' + port);
+    		});
 
-                    websocket.on('open', function() {
-                            this._connected = true;
-                            console.log('Connected to Monode server @ ' + host + ':' + port);
-                            this.emit('connected');
-                    }.bind(this));
+    		websocket.on('open', function() {
+    			this._connected = true;
+    			console.log('Connected to Monode server @ ' + host + ':' + port);
+    			this.emit('connected');
+    		}.bind(this));
 
-                    websocket.on('message', function(data) {
-                            data = JSON.parse(data);
+    		websocket.on('message', function(data) {
+    			data = JSON.parse(data);
 
-                            // @todo Check if event is in a list of valid events
-                            if(data.event) {
-                                    this.emit.apply(this, [data.event].concat(data.args));
-                            }
-                    }.bind(this));
+    			// @todo Check if event is in a list of valid events
+    			if(data.event) {
+    				this.emit.apply(this, [data.event].concat(data.args));
+    			}
+    		}.bind(this));
 
-                    return this;
-            },
+    		return this;
+    	},
 
-            led: function(x, y, s) {
-                    if(this.connected) {
-                            this._websocket.send(JSON.stringify({
-                                    method: 'led',
-                                    args: [x,y,s]
-                            }));
-                    }
-                    else {
-                            console.warn('led: Not connected to any Monode server');
-                    }
-            },
+    	led: function(x, y, s) {
+    		if(this.connected) {
+    			this._websocket.send(JSON.stringify({
+    				method: 'led',
+    				args: [x,y,s]
+    			}));
+    		}
+    		else {
+    			console.warn('led: Not connected to any Monode server');
+    		}
+    	},
 
-            _websocket: null
+    	_websocket: null
     });
 
 
@@ -81,32 +89,32 @@ define("client",
     var grid = {};
 
     monome.on('key', function(x,y,s) {
-            var id = x+''+y;
-            if(s) {
-                    console.log('KEY: ', x, y);
-                    if(!grid[id]) {
-                            grid[id] = 0;
-                    }
+    	var id = x+''+y;
+    	if(s) {
+    		console.log('KEY: ', x, y);
+    		if(!grid[id]) {
+    			grid[id] = 0;
+    		}
 
-                    grid[id] = !grid[id];
-                    monome.led(x, y, grid[id]);
-            }
+    		grid[id] = !grid[id];
+    		monome.led(x, y, grid[id]);
+    	}
     });
   });
 define("emitter", 
   ["exports"],
   function(__exports__) {
     "use strict";
-    /**
-     * interface Emitter {
-     *   void on(String signal, Function handler, [Object scope]);
-     *   void off(String signal, Function handler, [Object scope]);
-     *   void once(String signal, Function handler, [Object scope]);
-     *   void emit(String signal, Object var_args...);
-     * }
+    /*
+     * Nome
      *
-     * Provides a constructor to listen and emit signals.
+     * Copyright (c) 2013 Ramon Lamana
+     * Licensed under the MIT license.
      */
+
+    function Emitter() {
+    	this._listeners = {};
+    }
 
     function equals(handler, scope, expected) {
     	return function(item) {
@@ -117,102 +125,54 @@ define("emitter",
     	};
     }
 
-    function hasListener(listeners, signal, handler, scope) {
-    	if (!listeners[signal]) {
+    function hasListener(listeners, listener, handler, scope) {
+    	if (!listeners[listener]) {
     		return false;
     	}
 
-    	return listeners[signal].some(equals(handler, scope, true));
-    }
-
-    /**
-     * Creates an object with methods to add callbacks (listeners)
-     *   to specific signals and invoke this callbacks.
-     */
-    function Emitter() {
-    	this._listeners = {};
+    	return listeners[listener].some(equals(handler, scope, true));
     }
 
     Emitter.prototype = {
-    	/**
-    	 * Returns the count of listeners for a specific signal.
-    	 *
-    	 * @param signal <String> The signal we want to count listeners from.
-    	 * @returns <Number> The count.
-    	 */
-    	listenersCount: function(signal) {
-    		var list = this._listeners[signal];
-    		return  list ? list.length : 0;
-    	},
-
-    	/**
-    	 * Adds a listener to a signal, optionally a scope can be provided.
-    	 * NOTE: Calling this method with the same arguments will NOT add a new listener.
-    	 *
-    	 * @param signal <String> The signal to listen.
-    	 * @param handler <Function> The callback function.
-    	 * @param scope <Object?> The scope for the callback.
-    	 */
-    	on: function on(signal, handler, scope) {
+    	on: function on(listener, handler, scope) {
     		var list = this._listeners;
 
-    		if (hasListener(list, signal, handler, scope)) {
+    		if (hasListener(list, listener, handler, scope)) {
     			return;
     		}
 
-    		if (!list[signal]) {
-    			list[signal] = [];
+    		if (!list[listener]) {
+    			list[listener] = [];
     		}
 
-    		list[signal].push({
+    		list[listener].push({
     			funct: handler,
     			scope: scope
     		});
     	},
 
-    	/**
-    	 * Removes the listener added with exactly the same arguments.
-    	 *
-    	 * @param signal <String> The signal from we want to remove the listener.
-    	 * @param handler <Function> The callback passed to .on() method.
-    	 * @param scope <Object> The scope for the callback.
-    	 */
-    	off: function off(signal, handler, scope) {
-    		var list = this._listeners[signal];
+    	off: function off(listener, handler, scope) {
+    		var list = this._listeners[listener];
     		if (!list) {
     			return;
     		}
 
-    		this._listeners[signal] = list.filter(equals(handler, scope, false));
+    		this._listeners[listener] = list.filter(equals(handler, scope, false));
     	},
 
-    	/**
-    	 * Adds a listener to be fired only the next time the signal is emitted.
-    	 *
-    	 * @param signal <String> The signal to listen.
-    	 * @param handler <Function> The callback function.
-    	 * @param scope <Object?> The scope for the callback.
-    	 */
-    	once: function once(signal, handler, scope) {
-    		if (hasListener(this._listeners, signal, handler, scope)) {
+    	once: function once(listener, handler, scope) {
+    		if (hasListener(this._listeners, listener, handler, scope)) {
     			return;
     		}
 
-    		this.on(signal, function wrapper() {
-    			this.off(signal, wrapper, this);
+    		this.on(listener, function wrapper() {
+    			this.off(listener, wrapper, this);
     			handler.apply(scope, arguments);
     		}, this);
     	},
 
-    	/**
-    	 * Executes the callbacks for the given signal.
-    	 * Any extra argument will be passed to the callback.
-    	 *
-    	 * @param signal <String> The signal of the listeners we want to invoke.
-    	 * @param var_args <object...> Any arguments we want the callbacks to recive.
-    	 */
-    	emit: function emit(signal/*, var_args*/) {
-    		var list = this._listeners[signal];
+    	emit: function emit(listener/*, var_args*/) {
+    		var list = this._listeners[listener];
     		if (!list) {
     			return;
     		}
@@ -230,6 +190,12 @@ define("extend",
   ["exports"],
   function(__exports__) {
     "use strict";
+    /*
+     * Nome
+     *
+     * Copyright (c) 2013 Ramon Lamana
+     * Licensed under the MIT license.
+     */
 
     function extend() {
     	var obj = {};
@@ -248,3 +214,6 @@ define("extend",
 
     __exports__["default"] = extend;
   });
+    if (typeof define === 'function' && define.amd) {define(nome);}
+    else {root.Nome = require("nome");}
+}(this));

@@ -1,6 +1,8 @@
 /*global module:false*/
 module.exports = function(grunt) {
 
+	grunt.loadTasks('tasks/');
+
 	// Project configuration.
 	grunt.initConfig({
 		// Metadata.
@@ -9,10 +11,8 @@ module.exports = function(grunt) {
 		banner: '/*! <%= pkg.title || pkg.name %> - v<%= pkg.version %> - ' +
 			'<%= grunt.template.today("yyyy-mm-dd") %>\n' +
 			'<%= pkg.homepage ? "* " + pkg.homepage + "\\n" : "" %>' +
-			'* Copyright (c) <%= grunt.template.today("yyyy") %> <%= pkg.author.name %>;' +
+			' * Copyright (c) <%= grunt.template.today("yyyy") %> <%= pkg.author.name %>;' +
 			' Licensed <%= _.pluck(pkg.licenses, "type").join(", ") %> */\n',
-
-		// Task configuration
 
 		// Transpiler of nome client code 
 		transpile: {
@@ -22,7 +22,7 @@ module.exports = function(grunt) {
 					expand: true,
 					cwd: 'src/client/',
 					src: ['**/*.js'],
-					dest: 'tmp/',
+					dest: 'tmp/amd/',
 					ext: '.amd.js'
 				}]
 			}
@@ -32,18 +32,27 @@ module.exports = function(grunt) {
 			options: {
 				stripBanners: true
 			},
-			server: {
+			bin: {
 				options: {
 					banner: '#!/usr/bin/env node\n'
 				},
 				src: ['src/server/**/*.js'],
 				dest: 'build/bin/<%= pkg.name %>.js'
 			},
-			client: {
+			dist: {
 				options: {
 					banner: '<%= banner %>'
 				},
-				src: ['tmp/**/*.js'],
+				src: ['tmp/amd/**/*.js'],
+				dest: 'tmp/dist/<%= pkg.name %>.js'
+			}
+		},
+
+		librarify: {
+			dist: {
+				barename: '<%= pkg.name %>',
+				namespace: '<%= pkg.namespace %>',
+				src: '<%= concat.dist.dest %>',
 				dest: 'build/dist/<%= pkg.name %>.js'
 			}
 		},
@@ -52,8 +61,8 @@ module.exports = function(grunt) {
 			options: {
 				banner: '<%= banner %>'
 			},
-			client: {
-				src: '<%= concat.client.dest %>',
+			dist: {
+				src: '<%= librarify.dist.dest %>',
 				dest: 'build/dist/<%= pkg.name %>.min.js'
 			}
 		},
@@ -109,6 +118,10 @@ module.exports = function(grunt) {
 				files: '<%= jshint.lib_test.src %>',
 				tasks: ['jshint:lib_test', 'nodeunit']
 			}*/
+		},
+
+		clean: {
+			amd: ['build','tmp']
 		}
 	});
 
@@ -118,9 +131,10 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-contrib-nodeunit');
 	grunt.loadNpmTasks('grunt-contrib-jshint');
 	grunt.loadNpmTasks('grunt-contrib-watch');
+	grunt.loadNpmTasks('grunt-contrib-clean');
 	grunt.loadNpmTasks('grunt-es6-module-transpiler');
 
 	// Default task.
-	grunt.registerTask('default', ['jshint', /*'nodeunit',*/ 'transpile', 'concat', 'uglify']);
+	grunt.registerTask('default', ['clean', 'jshint', /*'nodeunit',*/ 'transpile', 'concat', 'librarify', 'uglify']);
 
 };
