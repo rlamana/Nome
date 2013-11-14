@@ -5,18 +5,18 @@
  * Licensed under the MIT license.
  */
 
+/* global WebSocket: false */
+
 import Emitter from 'emitter';
 import extend from 'extend';
 
-var WebSocket = require('ws');
-
-var Monome = function() {
+var Device = function() {
 	Emitter.apply(this);
 
 	this.connected = false;
 };
 
-Monome.prototype = extend(Emitter.prototype, {
+Device.prototype = extend(Emitter.prototype, {
 	get connected() {
 		return this._connected;
 	},
@@ -34,24 +34,24 @@ Monome.prototype = extend(Emitter.prototype, {
 
 		websocket = this._websocket = new WebSocket('ws://' + host + ':' + port);
 
-		websocket.on('error', function(){
+		websocket.onerror = function(){
 			console.error('Could not connected to Monode server @ ' + host + ':' + port);
-		});
+		};
 
-		websocket.on('open', function() {
+		websocket.onopen = function() {
 			this._connected = true;
 			console.log('Connected to Monode server @ ' + host + ':' + port);
 			this.emit('connected');
-		}.bind(this));
+		}.bind(this);
 
-		websocket.on('message', function(data) {
-			data = JSON.parse(data);
+		websocket.onmessage = function(data) {
+			data = JSON.parse(data.data);
 
 			// @todo Check if event is in a list of valid events
 			if(data.event) {
 				this.emit.apply(this, [data.event].concat(data.args));
 			}
-		}.bind(this));
+		}.bind(this);
 
 		return this;
 	},
@@ -71,25 +71,5 @@ Monome.prototype = extend(Emitter.prototype, {
 	_websocket: null
 });
 
+export default Device;
 
-///////// example
-
-var monome = new Monome();
-monome.connect().on('connected', function() {
-
-});
-
-var grid = {};
-
-monome.on('key', function(x,y,s) {
-	var id = x+''+y;
-	if(s) {
-		console.log('KEY: ', x, y);
-		if(!grid[id]) {
-			grid[id] = 0;
-		}
-
-		grid[id] = !grid[id];
-		monome.led(x, y, grid[id]);
-	}
-});

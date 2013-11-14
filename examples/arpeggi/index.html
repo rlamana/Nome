@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Monome Arpeggi</title>
+	</head>
+	<body>
+		<script type="text/javascript" src="../../build/dist/nome.js"></script>
+		<script type="text/javascript">
+			var monome = new Nome.Device();
+			monome.connect().on('connected', function() {
+
+			});
+
+			var grid = {};
+
+			monome.on('key', function(x,y,s) {
+				var id = x+''+y;
+				if(s) {
+					console.log('KEY: ', x, y);
+					if(!grid[id]) {
+						grid[id] = 0;
+					}
+
+					grid[id] = !grid[id];
+					monome.led(x, y, grid[id]);
+				}
+			});
+		</script>
+	</body>
+</html>

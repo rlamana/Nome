@@ -43,7 +43,7 @@ module.exports = function(grunt) {
 				options: {
 					banner: '<%= banner %>'
 				},
-				src: ['tmp/amd/**/*.js'],
+				src: ['vendor/amd.js', 'tmp/amd/**/*.js'],
 				dest: 'tmp/dist/<%= pkg.name %>.js'
 			}
 		},
@@ -104,15 +104,16 @@ module.exports = function(grunt) {
 		},
 
 		watch: {
-			gruntfile: {
-				files: '<%= jshint.gruntfile.src %>',
-				tasks: ['jshint:gruntfile']
+			dist: {
+				files: ['<%= jshint.gruntfile.src %>', 'src/client/**/*.js'],
+				tasks: ['default']
 			},
 
+			/*
 			lib_test: {
 				files: '<%= jshint.lib_test.src %>',
 				tasks: ['default']
-			}/*,
+			},
 
 			lib_test: {
 				files: '<%= jshint.lib_test.src %>',

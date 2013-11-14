@@ -1,9 +1,44 @@
 (function(root) {
 /*! nome - v0.0.1 - 2013-11-13
  * Copyright (c) 2013 Ramon Lamana; Licensed MIT */
-define("client", 
-  ["emitter","extend"],
-  function(__dependency1__, __dependency2__) {
+var define, require;
+
+(function() {
+	var registry = {}, seen = {};
+
+	define = function(name, deps, callback) {
+		registry[name] = { deps: deps, callback: callback };
+	};
+
+	require = function(name) {
+		if (seen[name]) { return seen[name]; }
+		seen[name] = {};
+
+		var mod = registry[name];
+		if (!mod) {
+			throw new Error("Module '" + name + "' not found.");
+		}
+
+		var deps = mod.deps,
+				callback = mod.callback,
+				reified = [],
+				exports;
+
+		for (var i=0, l=deps.length; i<l; i++) {
+			if (deps[i] === 'exports') {
+				reified.push(exports = {});
+			} else {
+				reified.push(require(deps[i]));
+			}
+		}
+
+		var value = callback.apply(this, reified);
+		return seen[name] = exports || value;
+	};
+})();
+define("device", 
+  ["emitter","extend","exports"],
+  function(__dependency1__, __dependency2__, __exports__) {
     "use strict";
     /*
      * Nome
@@ -12,18 +47,18 @@ define("client",
      * Licensed under the MIT license.
      */
 
+    /* global WebSocket: false */
+
     var Emitter = __dependency1__["default"];
     var extend = __dependency2__["default"];
 
-    var WebSocket = require('ws');
-
-    var Monome = function() {
+    var Device = function() {
     	Emitter.apply(this);
 
     	this.connected = false;
     };
 
-    Monome.prototype = extend(Emitter.prototype, {
+    Device.prototype = extend(Emitter.prototype, {
     	get connected() {
     		return this._connected;
     	},
@@ -41,24 +76,24 @@ define("client",
 
     		websocket = this._websocket = new WebSocket('ws://' + host + ':' + port);
 
-    		websocket.on('error', function(){
+    		websocket.onerror = function(){
     			console.error('Could not connected to Monode server @ ' + host + ':' + port);
-    		});
+    		};
 
-    		websocket.on('open', function() {
+    		websocket.onopen = function() {
     			this._connected = true;
     			console.log('Connected to Monode server @ ' + host + ':' + port);
     			this.emit('connected');
-    		}.bind(this));
+    		}.bind(this);
 
-    		websocket.on('message', function(data) {
-    			data = JSON.parse(data);
+    		websocket.onmessage = function(data) {
+    			data = JSON.parse(data.data);
 
     			// @todo Check if event is in a list of valid events
     			if(data.event) {
     				this.emit.apply(this, [data.event].concat(data.args));
     			}
-    		}.bind(this));
+    		}.bind(this);
 
     		return this;
     	},
@@ -78,28 +113,7 @@ define("client",
     	_websocket: null
     });
 
-
-    ///////// example
-
-    var monome = new Monome();
-    monome.connect().on('connected', function() {
-
-    });
-
-    var grid = {};
-
-    monome.on('key', function(x,y,s) {
-    	var id = x+''+y;
-    	if(s) {
-    		console.log('KEY: ', x, y);
-    		if(!grid[id]) {
-    			grid[id] = 0;
-    		}
-
-    		grid[id] = !grid[id];
-    		monome.led(x, y, grid[id]);
-    	}
-    });
+    __exports__["default"] = Device;
   });
 define("emitter", 
   ["exports"],
@@ -213,6 +227,15 @@ define("extend",
     }
 
     __exports__["default"] = extend;
+  });
+define("nome", 
+  ["device","exports"],
+  function(__dependency1__, __exports__) {
+    "use strict";
+    /* jslint unused: false */
+
+    var Device = __dependency1__["default"];
+    __exports__.Device = Device;
   });
     if (typeof define === 'function' && define.amd) {define(nome);}
     else {root.Nome = require("nome");}
