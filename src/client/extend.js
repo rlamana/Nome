@@ -6,18 +6,19 @@
  */
 
 function extend() {
-	var obj = {};
+	var descriptors = {};
+	
 	Array.prototype.slice.call(arguments, 0).forEach(function(source) {
 		if(typeof source === 'function') {
 			source = source.prototype;
 		}
-
+		
 		Object.keys(source).forEach(function(key) {
-			var descriptor = Object.getOwnPropertyDescriptor(source, key);
-			Object.defineProperty(obj, key, descriptor);
+			descriptors[key] = Object.getOwnPropertyDescriptor(source, key);
 		});
 	});
-	return obj;
+	
+	return Object.create(Object.prototype, descriptors);
 }
 
 export default extend;
