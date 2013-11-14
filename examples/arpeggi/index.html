@@ -2,8 +2,24 @@
 <html>
 	<head>
 		<title>Monome Arpeggi</title>
+		<style>
+			#grid {
+				width: 336px;
+			}
+
+			#grid .square {
+				display: inline-block;
+				background-color: black;
+				width: 40px;
+				height: 40px;
+
+				margin-left: 2px;
+			}
+		</style>
 	</head>
 	<body>
+		<div id="grid"></div>
+
 		<script type="text/javascript" src="../../build/dist/nome.js"></script>
 		<script type="text/javascript">
 			var monome = new Nome.Device();
@@ -14,15 +30,32 @@
 			var grid = {};
 
 			monome.on('key', function(x,y,s) {
-				var id = x+''+y;
-				if(s) {
-					console.log('KEY: ', x, y);
-					if(!grid[id]) {
-						grid[id] = 0;
-					}
+				// var id = x+''+y;
+				// if(s) {
+				// 	if(!grid[id]) {
+				// 		grid[id] = 0;
+				// 	}
 
-					grid[id] = !grid[id];
-					monome.led(x, y, grid[id]);
+				// 	grid[id] = !grid[id];
+				// 	monome.led(x, y, grid[id]);
+				// }
+
+				if(s) 
+					monome.led(x, y, 1);
+				else 
+					monome.led(x, y, 0);
+			});
+
+			document.addEventListener("DOMContentLoaded", function(event) {
+				var grid = document.getElementById('grid');
+				var height = 8, width = 8, square;
+				for(var i=0; i<width; i++) {
+					for(var j=0; j<height; j++) {
+						square = document.createElement('div');
+						square.id = 'square#' + (i*width+j);
+						square.className = 'square';
+						grid.appendChild(square);
+					}
 				}
 			});
 		</script>
