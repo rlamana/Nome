@@ -1,5 +1,6 @@
 /*global module:false*/
 module.exports = function(grunt) {
+    var tpmDir = 'build/tmp/';
 
     grunt.loadTasks('tasks/');
 
@@ -7,6 +8,10 @@ module.exports = function(grunt) {
     grunt.initConfig({
         // Metadata.
         pkg: grunt.file.readJSON('package.json'),
+        paths: {
+            build: 'build',
+            tmp: '<%= paths.build %>/tmp'
+        },
 
         banner: '/*! <%= pkg.title || pkg.name %> - v<%= pkg.version %> - ' +
             '<%= grunt.template.today("yyyy-mm-dd") %>\n' +
@@ -23,29 +28,41 @@ module.exports = function(grunt) {
                     expand: true,
                     cwd: 'src/client/',
                     src: ['**/*.js'],
-                    dest: 'tmp/amd/',
-                    ext: '.amd.js'
+                    dest: '<%= paths.tmp %>/es6',
+                    ext: '.js'
                 }]
             },
+        },
+
+        requirejs: {
+            dist: {
+                options: {
+                    baseUrl: '<%= paths.tmp %>/es6',
+                    paths: {
+                        vendor: '../../../vendor'
+                    },
+                    include: [
+                        'vendor/traceur-runtime',
+                        'nome'
+                    ],
+                    name: 'vendor/almond', 
+                    out: '<%= paths.tmp %>/<%= pkg.name %>.rjs.js',
+                    optimize: 'none'
+                }
+            }
         },
 
         concat: {
             options: {
                 stripBanners: true
             },
+
             bin: {
                 options: {
                     banner: '#!/usr/bin/env node\n'
                 },
                 src: ['src/server/**/*.js'],
-                dest: 'build/bin/<%= pkg.name %>.js'
-            },
-            dist: {
-                options: {
-                    banner: '<%= banner %>'
-                },
-                src: ['vendor/amd.js', 'tmp/amd/**/*.js'],
-                dest: 'tmp/dist/<%= pkg.name %>.js'
+                dest: '<%= paths.build %>/bin/<%= pkg.name %>.js'
             }
         },
 
@@ -53,8 +70,8 @@ module.exports = function(grunt) {
             dist: {
                 barename: '<%= pkg.name %>',
                 namespace: '<%= pkg.namespace %>',
-                src: '<%= concat.dist.dest %>',
-                dest: 'build/dist/<%= pkg.name %>.js'
+                src: '<%= paths.tmp %>/<%= pkg.name %>.rjs.js',
+                dest: '<%= paths.build %>/dist/<%= pkg.name %>.js'
             }
         },
 
@@ -64,7 +81,7 @@ module.exports = function(grunt) {
             },
             dist: {
                 src: '<%= librarify.dist.dest %>',
-                dest: 'build/dist/<%= pkg.name %>.min.js'
+                dest: '<%= paths.build %>/dist/<%= pkg.name %>.min.js'
             }
         },
 
@@ -108,8 +125,8 @@ module.exports = function(grunt) {
         },
 
         clean: {
-            build: ['build'],
-            tmp: 'tmp'
+            build: '<%= paths.build %>',
+            tmp: '<%= paths.tmp %>'
         }
     });
 
@@ -121,6 +138,16 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-requirejs');
     grunt.loadNpmTasks('grunt-traceur');
 
-    grunt.registerTask('build', ['clean', 'jshint', 'traceur', 'concat', 'librarify', 'uglify']);
-    grunt.registerTask('default', ['build', 'clean:tmp']);
+    grunt.registerTask('build', [
+        'clean:build', 
+
+        'traceur', 
+        'requirejs',
+        'concat', 
+        'librarify', 
+        'uglify',
+
+        //'clean:tmp'
+    ]);
+    grunt.registerTask('default', 'build');
 };

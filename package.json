@@ -28,7 +28,8 @@
     "grunt-contrib-clean": "~0.4.0",
     "grunt-contrib-requirejs": "~v0.4.4",
     "monode": "~2.2.3",
-    "ws": "~0.4.31"
+    "ws": "~0.4.31",
+    "rjs": "~4.0.2"
   },
   "author": {
     "name": "Ramon Lamana",
