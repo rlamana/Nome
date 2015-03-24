@@ -4,7 +4,7 @@
  * Copyright (c) 2013 Ramon Lamana
  * Licensed under the MIT license.
  */
- 
+
 var port = 5555;
 var monode = require('monode')();
 
@@ -22,7 +22,7 @@ clients.broadcast = function(data) {
 
 console.log('Listening on port ' + port);
 
-// Device connected 
+// Device connected
 var currentDevice = null; // @todoShould handle multple devices
 monode.on('device', function(device) {
 	currentDevice = device;
@@ -48,7 +48,7 @@ server.on('connection', function(websocket) {
 	clients.push(websocket);
 
 	console.log(' + New client on port ' + port);
-	
+
 	websocket.on('message', function(data) {
 		if (!currentDevice) {
 			return;
@@ -61,5 +61,3 @@ server.on('connection', function(websocket) {
 		}
 	});
 });
-
-

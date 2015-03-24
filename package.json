@@ -1,7 +1,7 @@
 {
   "name": "nome",
   "version": "0.0.1",
-  "description": "Monome controller server for monode & node.js",
+  "description": "Monome controller server and client for monode & node.js",
   "main": "Gruntfile.js",
   "bin": "build/bin/nome.js",
   "namespace": "Nome",
@@ -19,24 +19,27 @@
     "music"
   ],
   "devDependencies": {
-    "grunt": "~0.4.1",
-    "grunt-traceur": "~0.1.2",
+    "grunt": "^0.4.5",
+    "grunt-babel": "^4.0.0",
+    "grunt-contrib-clean": "~0.4.0",
     "grunt-contrib-concat": "~0.3.0",
     "grunt-contrib-jshint": "~0.6.3",
+    "grunt-contrib-requirejs": "~v0.4.4",
     "grunt-contrib-uglify": "~0.2.2",
     "grunt-contrib-watch": "~0.5.3",
-    "grunt-contrib-clean": "~0.4.0",
-    "grunt-contrib-requirejs": "~v0.4.4",
-    "monode": "~2.2.3",
-    "ws": "~0.4.31",
-    "rjs": "~4.0.2"
+    "grunt-traceur": "~0.1.2",
+    "monode": "^2.2.3",
+    "rjs": "~4.0.2",
+    "ws": "~0.4.31"
   },
   "author": {
     "name": "Ramon Lamana",
     "url": "http://www.rlamana.es"
   },
-  "licenses": [{
-    "type": "MIT",
-    "url": "http://opensource.org/licenses/MIT"
-  }]
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "http://opensource.org/licenses/MIT"
+    }
+  ]
 }

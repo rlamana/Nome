@@ -25,45 +25,51 @@
         <div id="grid"></div>
 
         <script type="text/javascript" src="../../build/dist/nome.js"></script>
-        <script type="text/javascript" src="synthpad.js"></script>
+        <script src="timbre.js"></script>
         <script type="text/javascript">
             var w = 8, h = 8;
-            var synthpad = new SynthPad(w, h);
             var monome = new Nome.Device();
-            monome.connect().on('connected', function() {
-            });
+            monome.connect().on('connected', function() {});
 
             var grid = [];
 
             monome.on('key', function(x,y, active) {
-                var square = grid[y][x];
+                var square = grid[y][x].$el,
+                    sound = grid[y][x].sound;
+
                 if(active) {
                     monome.led(x, y, 1);
-                    square & square.classList.add('active');
-                    synthpad.playSound(x, y);
+                    square && square.classList.add('active');
+                    sound.play();
                 }
                 else {
                     monome.led(x, y, 0);
-                    square & square.classList.remove('active');
-                    synthpad.stopSound(x, y);
+                    square && square.classList.remove('active');
+                    sound.pause();
                 }
             });
 
             document.addEventListener("DOMContentLoaded", function(event) {
                 var rootElement = document.getElementById('grid'),
-                    height = h, 
-                    width = w, 
+                    height = h,
+                    width = w,
                     square;
 
                 for(var i=0; i<width; i++) {
-                    grid[i] = []; 
+                    grid[i] = [];
                     for(var j=0; j<height; j++) {
                         square = document.createElement('div');
                         square.id = 'square#' + (i*width+j);
                         square.className = 'square';
                         rootElement.appendChild(square);
 
-                        grid[i][j] = square;
+                        grid[i][j] = {
+                            $el: square,
+                            sound: T("sin", {
+                                freq: 440 * (j+1), 
+                                mul: 0.5
+                            })
+                        }
                     }
                 }
             });
