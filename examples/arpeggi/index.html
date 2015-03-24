@@ -25,27 +25,35 @@
         <div id="grid"></div>
 
         <script type="text/javascript" src="../../build/dist/nome.js"></script>
+
+        <script src="music.js"></script>
         <script src="timbre.js"></script>
+
         <script type="text/javascript">
+            const KEY = 'C';
+            const SCALE = 'major'; //'natural minor';
+
+            const MAX_FREQ = 2100.0;
+
             var w = 8, h = 8;
             var monome = new Nome.Device();
-            monome.connect().on('connected', function() {});
-
             var grid = [];
 
+            monome.connect().on('connected', function() {});
             monome.on('key', function(x,y, active) {
-                var square = grid[y][x].$el,
-                    sound = grid[y][x].sound;
+                var key = grid[y][x];
 
                 if(active) {
                     monome.led(x, y, 1);
-                    square && square.classList.add('active');
-                    sound.play();
+                    key.button && key.button.classList.add('active');
+                    key.sound.play();
+
+                    console.log(key.note.latin(), key.note.octave(), key.note.frequency());
                 }
                 else {
                     monome.led(x, y, 0);
-                    square && square.classList.remove('active');
-                    sound.pause();
+                    key.button && key.button.classList.remove('active');
+                    key.sound.pause();
                 }
             });
 
@@ -53,22 +61,29 @@
                 var rootElement = document.getElementById('grid'),
                     height = h,
                     width = w,
-                    square;
+                    square, 
+                    scale, note;
 
                 for(var i=0; i<width; i++) {
                     grid[i] = [];
+                    scale = Note.fromLatin(KEY + (i+1)).scale(SCALE);
+
                     for(var j=0; j<height; j++) {
                         square = document.createElement('div');
                         square.id = 'square#' + (i*width+j);
                         square.className = 'square';
                         rootElement.appendChild(square);
 
+                        note = scale[j];
+
                         grid[i][j] = {
-                            $el: square,
+                            button: square,
                             sound: T("sin", {
-                                freq: 440 * (j+1), 
-                                mul: 0.5
-                            })
+                                freq: note.frequency() < MAX_FREQ ? note.frequency() : 0, 
+                                wave:"saw", 
+                                mul: 0.15
+                            }),
+                            note: note
                         }
                     }
                 }
