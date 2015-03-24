@@ -26,14 +26,21 @@
 
         <script type="text/javascript" src="../../build/dist/nome.js"></script>
 
-        <script src="music.js"></script>
+        <script src="teoria.js"></script>
         <script src="timbre.js"></script>
 
+        <script src="instruments/audio-jsonp.js"></script>
+        <script src="instruments/jsmad.js"></script>
+        <script src="instruments/mp3_decode.js"></script>
+        <script src="instruments/soundfont.js"></script>
+
         <script type="text/javascript">
-            const KEY = 'C';
+            const KEY = 'c';
             const SCALE = 'major'; //'natural minor';
 
             const MAX_FREQ = 2100.0;
+
+            T.soundfont.setInstrument(42);
 
             var w = 8, h = 8;
             var monome = new Nome.Device();
@@ -46,16 +53,19 @@
                 if(active) {
                     monome.led(x, y, 1);
                     key.button && key.button.classList.add('active');
-                    key.sound.play();
-
-                    console.log(key.note.latin(), key.note.octave(), key.note.frequency());
+                    // key.sound.play();
+                    T.soundfont.play(key.note.midi());
                 }
                 else {
                     monome.led(x, y, 0);
                     key.button && key.button.classList.remove('active');
-                    key.sound.pause();
+                    // key.sound.pause();
                 }
             });
+
+            function incrementOctave(note) {
+                return teoria.note(note.name() + (note.octave() + 1));
+            }
 
             document.addEventListener("DOMContentLoaded", function(event) {
                 var rootElement = document.getElementById('grid'),
@@ -66,7 +76,8 @@
 
                 for(var i=0; i<width; i++) {
                     grid[i] = [];
-                    scale = Note.fromLatin(KEY + (i+1)).scale(SCALE);
+                    scale = teoria.note(KEY + (i+1)).scale(SCALE).notes();
+                    scale.push(incrementOctave(scale[0]));
 
                     for(var j=0; j<height; j++) {
                         square = document.createElement('div');
@@ -79,7 +90,7 @@
                         grid[i][j] = {
                             button: square,
                             sound: T("sin", {
-                                freq: note.frequency() < MAX_FREQ ? note.frequency() : 0, 
+                                freq: note.fq() < MAX_FREQ ? note.fq() : 0, 
                                 wave:"saw", 
                                 mul: 0.15
                             }),
