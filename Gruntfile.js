@@ -34,6 +34,17 @@ module.exports = function(grunt) {
             },
         },
 
+        babel: {
+            options: {
+                sourceMap: true
+            },
+            dist: {
+                files: {
+                "dist/app.js": "src/app.js"
+                }
+            }
+        }
+
         requirejs: {
             dist: {
                 options: {
